@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,10 +38,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # rest framework
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    
+    #my application
     'account',
+    'group',
+    'event',
+    'messagerie',
+    'notification',
 ]
 
 AUTH_USER_MODEL='account.CustomUser' 
@@ -48,7 +57,8 @@ AUTH_USER_MODEL='account.CustomUser'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+   
 }
 
 MIDDLEWARE = [
@@ -60,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'meetworld2.urls'
 
@@ -133,7 +145,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+APPEND_SLASH=False
+# Token expired date
+TOKEN_EXPIRED_AFTER_SECONDS = 86400
+TOKEN_EXPIRE_TIME = datetime.timedelta(seconds=TOKEN_EXPIRED_AFTER_SECONDS)
 
 # email send
 

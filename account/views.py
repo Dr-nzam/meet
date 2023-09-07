@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,authentication_classes
+from account.function.checkToken import expires_in, token_expire_handler
 from account.function.sendEmail import sendMail
 from account.serializers.userSerializers import UserSerializer
 from django.contrib.auth.hashers import make_password
@@ -11,8 +12,12 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
 from account.serializers.inputSerializer import ChangePasswordSerializer, GoogleLoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer
 from rest_framework.permissions import IsAuthenticated,AllowAny
+from django.contrib.auth.models import update_last_login
+from account.authentication import ExpiringTokenAuthentication
+
 
 @api_view(['POST'])
+@authentication_classes([ExpiringTokenAuthentication])
 def register(request):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
@@ -23,6 +28,7 @@ def register(request):
 
 
 @api_view(['POST'])
+@authentication_classes([ExpiringTokenAuthentication])
 def login(request):
     if request.method == 'POST':
         email = request.data.get('email')
@@ -35,13 +41,17 @@ def login(request):
             user = authenticate(email=email, password=password)
             if user:
                 token, _ = Token.objects.get_or_create(user=user)
+                token = token_expire_handler(token)
                 serializer = UserSerializer(account, many=False)
                 data = serializer.data
+                data['expired_in'] = expires_in(token)
                 data['token'] = token.key
+                update_last_login(None, account)
                 return Response(data, status=status.HTTP_200_OK)
             return Response({'data': 'Erreur to connected'}, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['POST'])        
+@api_view(['POST'])
+@authentication_classes([ExpiringTokenAuthentication])        
 def reset_password_email(request):
         serializer = ResetPasswordEmailRequestSerializer(data=request.data)
         if serializer.is_valid():
@@ -53,6 +63,7 @@ def reset_password_email(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
+@authentication_classes([ExpiringTokenAuthentication])
 def reset_password(request):
         serializer = SetNewPasswordSerializer(data=request.data)
         
@@ -83,6 +94,7 @@ def reset_password(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
+@authentication_classes([ExpiringTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def change_password(request):
     serializer = ChangePasswordSerializer(data=request.data)
@@ -104,6 +116,7 @@ def change_password(request):
 
 
 @api_view(['POST'])
+@authentication_classes([ExpiringTokenAuthentication])
 def google_connexion(request):
     google_serializer = GoogleLoginSerializer(data=request.data["google"])
     

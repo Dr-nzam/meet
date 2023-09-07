@@ -8,8 +8,15 @@ class Group(models.Model):
     description = models.TextField()
     imageGroup = models.FileField(upload_to='assets/imagesgroup/', blank=True)
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='usercreategroup')
+    
+    def __str__(self):
+        return self.namGroup
 
 class Inscription(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='group', null=True, blank=True)
     user  = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='usergroup', null=True, blank=True)
-    
+
+class Message(models.Model):
+    user  = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='usergroupmessage', null=True, blank=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='groupmessage', null=True, blank=True)
+    message = models.TextField()
