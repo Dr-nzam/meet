@@ -3,13 +3,13 @@ from rest_framework import viewsets,status, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def sendMessageGroup(request):
-    return Response({'data':'send mssage sucess'}, status=status.HTTP_202_ACCEPTED)
+def detailEvent(request):
+    return Response({'data':'list  detail event'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def listMessageGroup(request):
-    return Response({'data':'list message '}, status=status.HTTP_202_ACCEPTED)
+def listEvent(request):
+    return Response({'data':'list event '}, status=status.HTTP_200_OK)

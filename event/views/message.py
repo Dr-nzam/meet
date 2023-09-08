@@ -5,11 +5,11 @@ from rest_framework.response import Response
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def sendMessageGroup(request):
+def sendMessageEvent(request):
     return Response({'data':'send mssage sucess'}, status=status.HTTP_202_ACCEPTED)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def listMessageGroup(request):
+def listMessageEvent(request):
     return Response({'data':'list message '}, status=status.HTTP_202_ACCEPTED)

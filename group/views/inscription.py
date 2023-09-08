@@ -1,36 +1,61 @@
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import viewsets,status, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from account.models import CustomUser
+from group.models import Group, Inscription
+from django.db.models import Q
+from group.serializer.inputSerializer import InscriptionSerializer
 
-
-class Infogroup(viewsets.ViewSet):
-    permission_classes(IsAuthenticated)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def subscribe(request,idgroup=None,iduser=None):
+    if request.method == 'POST':
+        if iduser is not None:
+            if idgroup is not None:
+                user = CustomUser.objects.get(id=iduser)
+                group = Group.objects.get(id=idgroup)         
+                serializer = InscriptionSerializer(data=request.data)
+                repetition = Inscription.objects.filter(Q(user_id=iduser) & Q(group_id=idgroup))
+                if not repetition:
+                    if serializer.is_valid():
+                        serializer.save(group=group, user=user)
+                        return Response({'data': 'Inscription réussie'}, status=status.HTTP_200_OK)
+                    return Response({'data':'Echec d\'inscription'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({'data': 'Déjà inscrit'}, status=status.HTTP_200_OK)
+                
+                
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+def unsubscribe(request,idgroup=None,iduser=None):
+    if request.method =='POST':
+        if iduser is not None:
+            if idgroup is not None:
+                existe = Inscription.objects.filter(Q(user_id=iduser) & Q(group_id=idgroup))
+                if existe:
+                    existe.delete()
+                    return Response({'data': 'désinscription réussie'}, status=status.HTTP_200_OK)
+                return Response({'data': 'vous n\'etes pas inscrire'}, status=status.HTTP_200_OK)
+                    
+                    
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def listMember(request, idgroup):
+    group = Group.objects.get(id=idgroup)
+    listMember = Inscription.objects.filter(group_id = group)
+    userid = []
+    for id in listMember:
+        userid.append()
+    return Response({'data1':'list member of groupe'})
     
-    @action(detail= False, methods=['POST'], name= 'subscribe', url_name='subscribe')
-    def subscribe(self, request):
-        inscription=True
-        if inscription:
-            return Response ({'data':'subscribe sucess'}, status=status.HTTP_200_OK)
-        return Response({'data':'echec subscribe'}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])   
+@permission_classes([IsAuthenticated])
+def numberMember(request):
+    return Response({'data1':'number membre of groupe'})
     
-    
-    @action(detail= False, methods=['POST'], name= 'unsubscribe', url_name='unsubscribe')
-    def unsubscribe(self, request):
-        desincription = True
-        if desincription:
-            return Response ({'data':'unsubscribe sucess'}, status=status.HTTP_200_OK)
-        return Response({'data':'echec unsubscribe'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail= False, methods=['GET'], name= 'listemember', url_name='liste-member-group')
-    def listMember(self, request):
-        return Response({'data1':'list member of groupe'})
-    
-    @action(detail= False, methods=['GET'], name= 'numbergroup', url_name='number-member-group')
-    def numberMember(self, request):
-        return Response({'data1':'number membre of groupe'})
-    
-    # group list user on subscribe
-    @action(detail= False, methods=['GET'], name= 'listgroup', url_name='list-group-subscribe')
-    def myGroup(self, request):
-        return Response({'data1':'my groupe'})
+# group list user on subscribe
+@api_view(['GET'])  
+@permission_classes([IsAuthenticated])
+def myGroup(request):
+    return Response({'data1':'my groupe'})

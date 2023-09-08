@@ -49,6 +49,7 @@ def login(request):
                 update_last_login(None, account)
                 return Response(data, status=status.HTTP_200_OK)
             return Response({'data': 'Erreur to connected'}, status=status.HTTP_400_BAD_REQUEST)
+
     
 @api_view(['POST'])
 @authentication_classes([ExpiringTokenAuthentication])        
@@ -61,6 +62,7 @@ def reset_password_email(request):
             sendMail(serializer.data['email'])
             return Response({"detail": "email sent successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 @api_view(['POST'])
 @authentication_classes([ExpiringTokenAuthentication])
@@ -92,6 +94,7 @@ def reset_password(request):
             user.save()
             return Response({"detail": "password reset successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 
     
 @api_view(['POST'])
 @authentication_classes([ExpiringTokenAuthentication])

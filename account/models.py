@@ -6,7 +6,7 @@ class CustomUser(AbstractUser):
     
     first_name = models.CharField(max_length=150, default="")
     last_name = models.CharField(max_length=150, default="")
-    username = models.CharField(max_length=150, default="", blank=True)
+    username = models.CharField(max_length=150, default="", blank=True, null=True)
     email = models.EmailField(unique=True)
     centreInteret = models.CharField(max_length=150, default="")
     city = models.CharField(max_length=30, default="")
