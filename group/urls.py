@@ -12,8 +12,8 @@ urlpatterns = [
     path('group/subscribe-group/<int:idgroup>/<int:iduser>/', subscribe, name='subscribe'),
     path('group/unsubscribe-group/<int:idgroup>/<int:iduser>/', unsubscribe, name='unsubscribe'),
     path('group/list-member-group/<int:idgroup>/', listMember, name='listMember'),
-    path('group/list-number-group/', numberMember, name='numberMember'),
-    path('group/list-group-user-subscribe/', myGroup, name='myGroup'),
+    path('group/list-number-group/<int:idgroup>/', numberMember, name='numberMember'),
+    path('group/list-group-user-subscribe/<int:iduser>/', myGroup, name='myGroup'),
     path('group/add-message/', sendMessageGroup, name='sendMessageGroup'),
     path('group/list-message/', listMessageGroup, name='group/list-message/'),
     ]

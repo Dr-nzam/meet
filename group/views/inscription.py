@@ -6,6 +6,8 @@ from account.models import CustomUser
 from group.models import Group, Inscription
 from django.db.models import Q
 from group.serializer.inputSerializer import InscriptionSerializer
+from account.serializers.userSerializers import UserSerializer
+from group.serializer.inputSerializer import GroupSerialiser
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -27,7 +29,7 @@ def subscribe(request,idgroup=None,iduser=None):
                 
                 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def unsubscribe(request,idgroup=None,iduser=None):
     if request.method =='POST':
         if iduser is not None:
@@ -40,22 +42,44 @@ def unsubscribe(request,idgroup=None,iduser=None):
                     
                     
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-def listMember(request, idgroup):
-    group = Group.objects.get(id=idgroup)
-    listMember = Inscription.objects.filter(group_id = group)
-    userid = []
-    for id in listMember:
-        userid.append()
-    return Response({'data1':'list member of groupe'})
+@permission_classes([IsAuthenticated])
+def listMember(request, idgroup = None):
+    if idgroup is not None:
+        if Group.objects.filter(id=idgroup).exists():
+            group = Group.objects.get(id=idgroup)
+            listMember = Inscription.objects.filter(group_id = group)
+            userid = []
+            member = []
+            for id in listMember:
+                userid.append(id.id)
+            for iduser in userid:
+                user = CustomUser.objects.get(id=iduser)
+                member.append(user)
+                serializers = UserSerializer(member, many=True).data
+            return Response(serializers, status=status.HTTP_200_OK)
+        return Response({'data':'group inconnu'}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])   
 @permission_classes([IsAuthenticated])
-def numberMember(request):
-    return Response({'data1':'number membre of groupe'})
+def numberMember(request, idgroup=None):
+    if idgroup is not None:
+        if Group.objects.filter(id=idgroup).exists():
+            group = Group.objects.get(id=idgroup)
+            numberMember = Inscription.objects.filter(group_id = group).count()
+            return Response({'numberMember':numberMember}, status=status.HTTP_200_OK)
+    return Response({'data':'group inconnu'})
     
 # group list user on subscribe
 @api_view(['GET'])  
 @permission_classes([IsAuthenticated])
-def myGroup(request):
-    return Response({'data1':'my groupe'})
+def myGroup(request, iduser):
+    myGroup = Inscription.objects.filter(user_id=iduser)
+    idmygroup = []
+    listgroup = []
+    for mg in myGroup:
+        idmygroup.append(mg.group.id)
+    for id in idmygroup:
+        group = Group.objects.get(id=id)
+        listgroup.append(group)
+        serializers = GroupSerialiser(listgroup, many=True).data
+    return Response(serializers, status=status.HTTP_200_OK)
